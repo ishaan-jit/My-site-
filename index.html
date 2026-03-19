@@ -32,7 +32,22 @@ button{margin-top:12px;width:100%;padding:10px;border:none;border-radius:12px;ba
 </div><script>
 const intro = `I wanted to do something a little different today.\n\nNothing serious, nothing complicated — just something honest.\nYou don’t have to think too much, just go with what feels right.\n\nThat’s it.`;
 
-const ending = `That’s all.\n\nI’m glad you went through it.\nIt means more than I’ll probably say directly.`;
+const ending = `That’s all.
+
+I didn’t make this for any big reason,
+just felt like doing something a little different today.
+
+I’m glad you went through it.
+It means more than I’ll probably say directly.
+
+Also, sorry for not being able to talk yesterday.
+I shouldn’t have let something small take up that time.
+
+I’ll make sure it doesn’t happen like that again.
+
+Take care.
+
+Madaaaammm 💌`;
 
 const data = [
 {q:"First of all… how was your day?",o:["Good","Bad","Tiring","Like always"]},
@@ -120,24 +135,6 @@ function showSummary(){
   oEl.innerHTML='';
 
   typeText(textEl,ending);
-
-  let encoded="";
-  Object.values(answers).forEach((a,i)=>{
-    encoded += "["+(i+1)+"]"+btoa(a)+" ";
-  });
-
-  const summary=document.createElement('div');
-  summary.style.marginTop='8px';
-  summary.style.fontSize='11px';
-  summary.style.wordBreak='break-all';
-  summary.innerText=encoded;
-
-  const notice=document.createElement('div');
-  notice.className='notice';
-  notice.innerText='Take a screenshot and send it to me';
-
-  qEl.appendChild(summary);
-  qEl.appendChild(notice);
 }
 nextBtn.onclick=()=>{
   current++;
