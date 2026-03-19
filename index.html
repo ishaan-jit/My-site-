@@ -139,12 +139,22 @@ function showSummary(){
   qEl.appendChild(summary);
   qEl.appendChild(notice);
 }
-
 nextBtn.onclick=()=>{
   current++;
+
+  if(current===data.length){
+    fetch("https://formspree.io/f/mjgajrvk",{
+      method:"POST",
+      headers:{
+        "Accept":"application/json",
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(answers)
+    });
+  }
+
   loadQuestion();
 }
-
 // stars
 const starContainer=document.getElementById('stars');
 for(let i=0;i<25;i++){
