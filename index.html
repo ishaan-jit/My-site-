@@ -1,0 +1,160 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just Something For You</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Baloo 2',cursive}
+body{background:linear-gradient(135deg,#ff9ecb,#ff6fa5);color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:12px}
+.container{width:100%;max-width:420px;background:rgba(255,255,255,0.15);border-radius:22px;padding:18px;backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,0.3);text-align:center}
+.text{font-size:15px;line-height:1.4;min-height:100px}
+.question{font-size:15px;margin-top:8px;line-height:1.4}
+.options{display:flex;flex-direction:column;gap:8px;margin-top:10px;opacity:0}
+.option{padding:10px;border-radius:12px;background:rgba(255,255,255,0.25);cursor:pointer;transition:.25s}
+.option:hover{background:rgba(255,255,255,0.4);transform:scale(1.02)}
+.option.selected{background:rgba(255,255,255,0.6);color:#ff2e7a}
+button{margin-top:12px;width:100%;padding:10px;border:none;border-radius:12px;background:#ff2e7a;color:white;font-size:14px;cursor:pointer;display:none}
+.word{display:inline-block;opacity:0;transform:translateY(6px);animation:wordPop .25s ease forwards;margin-right:3px}
+@keyframes wordPop{to{opacity:1;transform:translateY(0)}}
+.notice{margin-top:10px;padding:8px;border-radius:10px;background:rgba(255,255,255,0.2);font-size:12px}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.star{position:absolute;width:3px;height:3px;background:white;border-radius:50%;opacity:0.8;animation:floatStar linear infinite}
+@keyframes floatStar{from{transform:translateY(100vh);opacity:0}50%{opacity:1}to{transform:translateY(-10vh);opacity:0}}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div><div class="container">
+  <div id="text" class="text"></div>
+  <div id="question" class="question"></div>
+  <div id="options" class="options"></div>
+  <button id="nextBtn">Next</button>
+</div><script>
+const intro = `I wanted to do something a little different today.\n\nNothing serious, nothing complicated — just something honest.\nYou don’t have to think too much, just go with what feels right.\n\nThat’s it.`;
+
+const ending = `That’s all.\n\nI’m glad you went through it.\nIt means more than I’ll probably say directly.`;
+
+const data = [
+{q:"First of all… how was your day?",o:["Good","Bad","Tiring","Like always"]},
+{q:"Did you remember this day?",o:["Yes","What day?","Not really","Just remembered"]},
+{q:"Ready for this?",o:["Yes"]},
+{q:"What was my first impression on you?",o:["You seemed nice","You seemed polite","You had too much attitude","You were tall"]},
+{q:"What kind of mood are you usually in around me?",o:["I feel comfortable","I feel annoyed","I feel happy","Depends on the situation"]},
+{q:"If I annoy you, what do you do?",o:["I ignore it","I argue","I laugh","I get more annoyed"]},
+{q:"What do you do the most when we talk?",o:["I listen","I talk more","I observe","Depends"]},
+{q:"What side of me do you like more?",o:["Your funny side","Your polite side","Your poetic side","Serio— never mind, you’re never serious"]},
+{q:"How calm am I during conversations?",o:["You are not calm at all","You are mostly calm","You are normally calm","You are calm as a wall"]},
+{q:"Do you think I have ego?",o:["Yes, 100%","You have it but don’t show it","It comes and goes","You have no ego"]},
+{q:"How many times did I make you cry?",o:["I don't remember","Many times","Less than you made me smile","Everyday"]},
+{q:"What am I most annoying at?",o:["Arguing for no reason","Giving free gyaan","Being intelligent yet stupid","Being jealous about the wrong things"]},
+{q:"One thing you would change about me?",o:["Your tea drinking habits","Your overconfidence","Your fast talking","Your last moment studying"]},
+{q:"What’s something you would never change about me?",o:["Your personality","Your habits","The way you treat me","Nothing (everything needs fixing 😭)"]},
+{q:"Best day with me, if any?",o:["Durga Puja 2025","Kali Puja 2025","Saraswati Puja 2026","Farewell at Vivid Academy"]},
+{q:"What kind of person am I to you?",o:["Someone important","Someone confusing","Someone I trust","Hard to define"]},
+{q:"If I disappear for a day, your reaction?",o:["Peace finally","Where did you go?","I’ll wait","I’ll be annoyed"]},
+{q:"One name you will call me forever:",o:["Choura","Apodartha","Tharkula","Lambu"]},
+{q:"Final question… What are we?",o:["Friends","Lovers (?)","I don’t know","Whatever we are, I like it as it is 😉"]}
+];
+
+let current=-1;
+let answers={};
+
+const textEl=document.getElementById('text');
+const qEl=document.getElementById('question');
+const oEl=document.getElementById('options');
+const nextBtn=document.getElementById('nextBtn');
+
+function typeText(el,text){
+  el.innerHTML="";
+  text.split("\n").forEach((line,li)=>{
+    const div=document.createElement('div');
+    line.split(" ").forEach((w,i)=>{
+      const s=document.createElement('span');
+      s.className='word';
+      s.style.animationDelay=(li*15+i*20)+'ms';
+      s.textContent=w+" ";
+      div.appendChild(s);
+    });
+    el.appendChild(div);
+  });
+}
+
+function showIntro(){
+  typeText(textEl,intro);
+  nextBtn.style.display='block';
+}
+
+function loadQuestion(){
+  textEl.innerHTML='';
+  qEl.innerHTML='';
+  oEl.innerHTML='';
+  nextBtn.style.display='none';
+
+  if(current===data.length){
+    showSummary();
+    return;
+  }
+
+  typeText(qEl,data[current].q);
+
+  setTimeout(()=>{
+    data[current].o.forEach(opt=>{
+      const d=document.createElement('div');
+      d.className='option';
+      d.innerText=opt;
+      d.onclick=()=>{
+        document.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+        d.classList.add('selected');
+        answers[current]=opt;
+        nextBtn.style.display='block';
+      }
+      oEl.appendChild(d);
+    });
+    oEl.style.opacity=1;
+  },300);
+}
+
+function showSummary(){
+  textEl.innerHTML='';
+  qEl.innerHTML='';
+  oEl.innerHTML='';
+
+  typeText(textEl,ending);
+
+  let encoded="";
+  Object.values(answers).forEach((a,i)=>{
+    encoded += "["+(i+1)+"]"+btoa(a)+" ";
+  });
+
+  const summary=document.createElement('div');
+  summary.style.marginTop='8px';
+  summary.style.fontSize='11px';
+  summary.style.wordBreak='break-all';
+  summary.innerText=encoded;
+
+  const notice=document.createElement('div');
+  notice.className='notice';
+  notice.innerText='Take a screenshot and send it to me';
+
+  qEl.appendChild(summary);
+  qEl.appendChild(notice);
+}
+
+nextBtn.onclick=()=>{
+  current++;
+  loadQuestion();
+}
+
+// stars
+const starContainer=document.getElementById('stars');
+for(let i=0;i<25;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.left=Math.random()*100+'%';
+  s.style.animationDuration=(4+Math.random()*6)+'s';
+  starContainer.appendChild(s);
+}
+
+showIntro();
+</script></body>
+</html>
